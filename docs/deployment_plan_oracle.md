@@ -1,65 +1,37 @@
-# План развертывания бэкенда: Oracle Server Deployment
+# Отчет о развертывании: Oracle Cloud Production
 
-Этот план описывает процесс переноса бэкенда из GitHub Container Registry (GHCR) на выделенный сервер Oracle через SSH.
+Этот документ фиксирует финальную конфигурацию системы после успешного развертывания 3 мая 2026 года.
 
-## 1. Фаза аудита и расширения контекста (Безопасная разведка)
-Прежде чем начинать деплой, необходимо понять ограничения среды. Я буду использовать следующие команды:
+## 1. Спецификации сервера
+- **Host:** `140.238.153.123` (Ubuntu 24.04.4 LTS)
+- **Ресурсы:** 24 GB RAM, ARM64 Architecture.
+- **Docker Engine:** v29.3.0
 
-### Аудит сетевых возможностей
-- `ss -tulpn` или `netstat -tulpn` — чтобы узнать, какие порты уже заняты (особенно 80, 443, 8000).
-- `sudo ufw status` или `sudo iptables -L` — проверка правил брандмауэра (открыт ли доступ извне).
+## 2. Архитектура развертывания
+В ходе работы была выбрана стратегия **локальной сборки на сервере (Local Build)**. Это позволило избежать проблем с правами доступа к приватным образам в GitHub Container Registry и обеспечило максимальную скорость работы.
 
-### Аудит ресурсов и окружения
-- `docker info` — проверка, установлен ли Docker и достаточно ли прав у текущего пользователя.
-- `free -h` — проверка оперативной памяти (важно для работы PostgreSQL).
-- `cat /etc/os-release` — определение дистрибутива (Ubuntu/Oracle Linux) для специфичных настроек.
+### Компоненты системы (Docker):
+1. **calendar-app (FastAPI):**
+   - Порт: `8000` (внешний)
+   - Режим: Автоматический перезапуск (`always`)
+   - Связь: Настроен на общение с БД через внутреннюю сеть Docker.
+2. **calendar-db (PostgreSQL 15):**
+   - Порт: `5432` (внутренний)
+   - Хранение: Данные сохраняются в Docker Volume `postgres_data`.
 
----
+## 3. Настройки окружения (.env)
+На сервере сконфигурированы следующие боевые параметры:
+- `GOOGLE_REDIRECT_URI`: `http://140.238.153.123:8000/api/v1/auth/callback`
+- `FRONTEND_URL`: `https://3dstepansky.github.io/calendar-booking/`
+- `DATABASE_URL`: `postgresql+asyncpg://postgres:postgres@db:5432/calendar_booking`
 
-## 2. Подготовительная фаза
-1. **Авторизация в GHCR:**
-   ```bash
-   echo $GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
-   ```
-2. **Настройка окружения:**
-   - Создание папки проекта: `mkdir -p ~/calendar-booking`.
-   - Создание файла `.env` с боевыми ключами (Google OAuth, Telegram Token).
+## 4. Статус и ссылки
+- **Backend API Docs:** [http://140.238.153.123:8000/docs](http://140.238.153.123:8000/docs) — **LIVE**
+- **Frontend App:** [https://3dstepansky.github.io/calendar-booking/](https://3dstepansky.github.io/calendar-booking/) — **LIVE**
+- **Database Migrations:** Успешно применены до версии `5984a03d2f4b` (add_timezone_to_user).
 
----
-
-## 3. Фаза развертывания (Execution)
-1. **Создание Docker Compose файла:**
-   Я создам оптимизированный `docker-compose.prod.yml`, который будет использовать готовый образ из GitHub:
-   ```yaml
-   services:
-     app:
-       image: ghcr.io/3dstepansky/calendar-booking-backend:main
-       ports:
-         - "8000:8000"
-       env_file: .env
-     db:
-       image: postgres:15-alpine
-       # ... настройки БД ...
-   ```
-2. **Запуск:**
-   ```bash
-   docker-compose up -d
-   ```
-3. **Миграции:**
-   ```bash
-   docker-compose exec app alembic upgrade head
-   ```
-
----
-
-## 4. Верификация и Релиз
-- **Тест API:** Проверка `https://your-oracle-ip:8000/docs`.
-- **Логи:** `docker-compose logs -f app` для отслеживания ошибок в реальном времени.
-- **Интеграция:** Обновление ссылки на бэкенд во фронтенде (GitHub Pages).
-
----
-
-## 5. Безопасность
-- [ ] Ограничение доступа к порту 5432 (PostgreSQL) только для локальной сети.
-- [ ] Настройка автоматического перезапуска контейнеров (`restart: always`).
-- [ ] (Опционально) Настройка Nginx в качестве реверс-прокси для работы по 443 порту, если VPN позволит разделить трафик.
+## 5. Обслуживание (Полезные команды на сервере)
+Для управления приложением используйте следующие команды в папке `~/calendar-booking`:
+- `sudo docker compose ps` — проверка статуса контейнеров.
+- `sudo docker compose logs -f app` — просмотр логов бэкенда в реальном времени.
+- `sudo docker compose restart app` — перезапуск приложения после изменений.

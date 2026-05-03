@@ -32,7 +32,8 @@
 - [x] **Routing:** Настройка React Router с поддержкой `basename`.
 - [x] **CI/CD:** GitHub Actions для автоматического деплоя при каждом пуше.
 - [x] **Live URL (Front):** [https://3dstepansky.github.io/calendar-booking/](https://3dstepansky.github.io/calendar-booking/)
-- [x] **Backend Artifacts:** Автоматическая сборка Docker-образов в GitHub Container Registry (GHCR).
+- [x] **Backend Deployment:** Развернут на сервере Oracle (`140.238.153.123:8000`).
+- [x] **Database Migrations:** Успешно применены в продакшн-среде.
 
 ---
 
