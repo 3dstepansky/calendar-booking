@@ -129,7 +129,7 @@ const BookingScreen = () => {
 function App() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-6">
-      <Router>
+      <Router basename="/calendar-booking">
         <div className="booking-container">
           <Routes>
             <Route path="/" element={<BookingScreen />} />
