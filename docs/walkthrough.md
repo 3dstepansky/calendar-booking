@@ -39,7 +39,8 @@ docker-compose exec app alembic upgrade head
 - `GET /api/v1/auth/login` — инициирует вход через Google.
 - `GET /api/v1/auth/callback` — обработка ответа от Google и выдача JWT.
 
-### 📅 Настройка графика
+### 📅 Настройка профиля и графика
+- `POST /api/v1/organizer/profile` — обновление профиля (например, часового пояса).
 - `POST /api/v1/organizer/working-hours` — установка рабочих часов (например, Пн-Пт 10:00-18:00).
 
 ### 🔍 Поиск слотов и бронирование
@@ -64,10 +65,14 @@ docker-compose exec app alembic upgrade head
 ### Фронтенд (GitHub Pages)
 Проект настроен на автоматическое развертывание. 
 - **URL:** [https://3dstepansky.github.io/calendar-booking/](https://3dstepansky.github.io/calendar-booking/)
-- **Backend (VPS):** `http://45.134.217.246:8000`
+- **Backend (VPS + SSL):** `https://stepansky.mywire.org:8443`
+- **Маршрутизация:** Используется `HashRouter`. Прямые ссылки:
+    - [Экран бронирования](https://3dstepansky.github.io/calendar-booking/#/)
+    - [Вход для организатора](https://3dstepansky.github.io/calendar-booking/#/login)
+    - [Панель управления](https://3dstepansky.github.io/calendar-booking/#/dashboard)
 
-> [!WARNING]
-> **Mixed Content:** Поскольку фронтенд работает на HTTPS, а бэкенд на HTTP, браузеры могут блокировать запросы. Для полноценного тестирования рекомендуется запускать фронтенд локально или настроить SSL на сервере.
+> [!NOTE]
+> **Решение Mixed Content:** Проблема решена путем настройки Nginx Reverse Proxy на порту 8443. Бэкенд теперь работает по полноценному HTTPS с использованием сертификатов Let's Encrypt.
 
 ### Уведомления (Telegram)
 Система отправляет уведомления о новых записях. Для активации нужно:
