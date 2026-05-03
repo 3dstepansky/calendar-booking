@@ -10,6 +10,8 @@ class SlotEngine:
         self.db = db
         self.google_service = GoogleCalendarService(db)
 
+    async def get_available_slots(self, user_id: int, target_date: datetime):
+        """Получает список свободных слотов для пользователя на указанную дату."""
         # 1. Получаем пользователя и его часовой пояс
         user_result = await self.db.execute(select(User).where(User.id == user_id))
         user = user_result.scalar_one_or_none()
@@ -29,13 +31,13 @@ class SlotEngine:
             return []
 
         # 3. Формируем границы рабочего дня в часовом поясе организатора
-        start_dt = datetime.combine(target_date.date(), working_day.start_time, tzinfo=tz)
-        end_dt = datetime.combine(target_date.date(), working_day.end_time, tzinfo=tz)
+        start_dt = datetime.combine(target_date.date(), working_day.start_time).replace(tzinfo=tz)
+        end_dt = datetime.combine(target_date.date(), working_day.end_time).replace(tzinfo=tz)
 
-        # 3. Запрашиваем занятость у Google
+        # 4. Запрашиваем занятость у Google
         busy_intervals = await self.google_service.get_freebusy(user_id, start_dt, end_dt)
 
-        # 4. Нарезаем рабочий день на 60-минутные слоты
+        # 5. Нарезаем рабочий день на 60-минутные слоты
         available_slots = []
         current_slot_start = start_dt
 
@@ -45,9 +47,9 @@ class SlotEngine:
             # Проверяем, не пересекается ли этот слот с занятыми интервалами Google
             is_busy = False
             for busy in busy_intervals:
-                # Парсим время из Google (они присылают строки типа '2026-05-01T15:00:00Z')
-                busy_start = datetime.fromisoformat(busy["start"].replace("Z", ""))
-                busy_end = datetime.fromisoformat(busy["end"].replace("Z", ""))
+                # Парсим время из Google
+                busy_start = datetime.fromisoformat(busy["start"].replace("Z", "+00:00")).astimezone(tz)
+                busy_end = datetime.fromisoformat(busy["end"].replace("Z", "+00:00")).astimezone(tz)
 
                 # Если слот пересекается с занятым временем — помечаем как занятый
                 if not (current_slot_end <= busy_start or current_slot_start >= busy_end):
