@@ -34,3 +34,18 @@ async def update_working_hours(
 
     await db.commit()
     return {"status": "success", "message": f"Рабочие часы для {current_user.email} обновлены"}
+
+from pydantic import BaseModel
+class ProfileUpdate(BaseModel):
+    timezone: str
+
+@router.post("/profile")
+async def update_profile(
+    data: ProfileUpdate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Обновление профиля (часового пояса)"""
+    current_user.timezone = data.timezone
+    await db.commit()
+    return {"status": "success", "message": "Профиль обновлен"}

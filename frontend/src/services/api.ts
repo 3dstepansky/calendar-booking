@@ -32,6 +32,17 @@ export const bookingService = {
   // Авторизация (инициация)
   login: () => {
     window.location.href = 'http://45.134.217.246:8000/api/v1/auth/login';
+  },
+
+  // Настройки организатора
+  updateProfile: async (timezone: string) => {
+    const response = await api.post('/organizer/profile', { timezone });
+    return response.data;
+  },
+
+  updateWorkingHours: async (days: any[]) => {
+    const response = await api.post('/organizer/working-hours', { days });
+    return response.data;
   }
 };
 
