@@ -206,124 +206,84 @@ const OrganizerDashboard = () => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-2xl mx-auto px-4 py-10">
-      <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
-        <h1 className="!mb-0 text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent">
-          Dashboard
-        </h1>
-        
-        <div className="flex bg-white/[0.03] p-1.5 rounded-2xl border border-white/5 backdrop-blur-md">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="dashboard-container">
+      <div className="flex items-center justify-between mb-10">
+        <h1 style={{ marginBottom: 0 }}>Dashboard</h1>
+        <div className="segmented-control">
           <button 
             onClick={() => setActiveTab('bookings')}
-            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${activeTab === 'bookings' ? 'bg-sky-500 text-white shadow-[0_0_20px_rgba(56,189,248,0.3)]' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`segment-btn ${activeTab === 'bookings' ? 'active' : ''}`}
           >
-            <Calendar size={18} /> Встречи
+            <Calendar size={16} /> Встречи
           </button>
           <button 
             onClick={() => setActiveTab('settings')}
-            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${activeTab === 'settings' ? 'bg-sky-500 text-white shadow-[0_0_20px_rgba(56,189,248,0.3)]' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`segment-btn ${activeTab === 'settings' ? 'active' : ''}`}
           >
-            <Settings size={18} /> Настройки
+            <Settings size={16} /> Настройки
           </button>
         </div>
       </div>
 
       <AnimatePresence mode="wait">
         {activeTab === 'bookings' ? (
-          <motion.div key="bookings" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}>
+          <motion.div key="bookings" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-24 text-slate-500">
-                <div className="w-10 h-10 border-2 border-sky-500/20 border-t-sky-500 rounded-full animate-spin mb-4" />
-                <p className="text-sm tracking-wide">Синхронизация данных...</p>
-              </div>
+              <div className="empty-state">Загрузка встреч...</div>
             ) : bookings.length === 0 ? (
-              <div className="text-center py-24 bg-white/[0.02] rounded-[32px] border border-dashed border-white/10">
-                <Calendar className="mx-auto text-slate-700 mb-5" size={48} />
-                <p className="text-white text-lg font-medium">Пока пусто</p>
-                <p className="text-slate-500 text-sm mt-2 max-w-xs mx-auto">Все ваши забронированные встречи из Google Календаря появятся здесь.</p>
+              <div className="empty-state">
+                <Calendar size={40} style={{ marginBottom: '16px', opacity: 0.2 }} />
+                <p>У вас пока нет забронированных встреч.</p>
               </div>
             ) : (
-              <div className="grid gap-5">
+              <div className="booking-list">
                 {bookings.map((b) => (
-                  <motion.div 
-                    layout
-                    key={b.id} 
-                    className="group relative bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 p-6 rounded-3xl transition-all duration-300 flex justify-between items-center"
-                  >
-                    <div className="flex items-center gap-5">
-                      <div className="h-14 w-14 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-400 border border-sky-500/20 group-hover:scale-110 transition-transform duration-500">
-                        <Clock size={24} />
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-semibold text-white tracking-tight">{b.guest_name}</h4>
-                        <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-slate-400">
-                          <span className="flex items-center gap-2 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
-                            <Clock size={14} className="text-sky-400" /> 
-                            {new Date(b.start_time).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                          <span className="flex items-center gap-2 text-slate-500">
-                            <User size={14} /> {b.guest_email}
-                          </span>
-                        </div>
+                  <div key={b.id} className="booking-item">
+                    <div className="booking-info">
+                      <h4>{b.guest_name}</h4>
+                      <div className="booking-meta">
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Clock size={12} /> {new Date(b.start_time).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <span>{b.guest_email}</span>
                       </div>
                     </div>
                     <button 
                       onClick={() => handleDelete(b.id)}
-                      className="p-3.5 rounded-2xl bg-red-500/0 text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-300"
+                      className="btn-cancel"
                       title="Отменить встречу"
                     >
-                      <Trash2 size={20} />
+                      <Trash2 size={16} />
                     </button>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
           </motion.div>
         ) : (
-          <motion.div key="settings" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }} className="bg-white/[0.03] p-10 rounded-[40px] border border-white/5 backdrop-blur-xl">
-            <div className="mb-10">
-              <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-500/70 mb-4 block">Ваш регион</label>
-              <div className="relative group">
-                <select 
-                  value={timezone} 
-                  onChange={(e) => setTimezone(e.target.value)}
-                  className="w-full pl-6 pr-12 py-5 bg-black/40 border border-white/10 rounded-2xl focus:border-sky-500/50 transition-all duration-300 outline-none appearance-none cursor-pointer text-lg font-medium"
-                >
-                  <option value="Europe/Moscow">Москва (UTC+3)</option>
-                  <option value="Europe/London">Лондон (UTC+0)</option>
-                  <option value="Asia/Dubai">Дубай (UTC+4)</option>
-                </select>
-                <ChevronRight size={20} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-600 pointer-events-none group-hover:text-sky-500 transition-colors rotate-90" />
-              </div>
+          <motion.div key="settings" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="booking-container" style={{ maxWidth: '100%', padding: '32px' }}>
+            <div style={{ marginBottom: '24px' }}>
+              <label>Ваш часовой пояс</label>
+              <select value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+                <option value="Europe/Moscow">Москва (UTC+3)</option>
+                <option value="Europe/London">Лондон (UTC+0)</option>
+                <option value="Asia/Dubai">Дубай (UTC+4)</option>
+              </select>
             </div>
             
-            <div className="mb-12">
-              <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-500/70 mb-4 block">Рабочие часы</label>
-              <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-1 h-full bg-sky-500/50" />
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-lg font-semibold text-white">Будни (Пн — Пт)</span>
-                  <div className="bg-sky-500/10 text-sky-400 px-4 py-1.5 rounded-full text-sm font-bold border border-sky-500/20">
-                    09:00 — 18:00
-                  </div>
+            <div style={{ marginBottom: '32px' }}>
+              <label>Рабочие часы</label>
+              <div className="schedule-card" style={{ marginBottom: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Пн — Пт</span>
+                  <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>09:00 - 18:00</span>
                 </div>
-                <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
-                  На данный момент настройки применяются ко всем будним дням автоматически. Индивидуальный выбор дней будет доступен в Step 4.
-                </p>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Автоматическая настройка для всех будних дней.</p>
               </div>
             </div>
 
-            <button 
-              onClick={handleSaveSettings} 
-              disabled={saving} 
-              className="btn-primary !py-5 !text-lg !rounded-2xl shadow-[0_10px_30px_-10px_rgba(56,189,248,0.5)] active:scale-[0.98]"
-            >
-              {saving ? (
-                <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Сохранение...
-                </div>
-              ) : "Сохранить конфигурацию"}
+            <button onClick={handleSaveSettings} disabled={saving} className="btn-primary">
+              {saving ? "Сохранение..." : "Сохранить изменения"}
             </button>
           </motion.div>
         )}
