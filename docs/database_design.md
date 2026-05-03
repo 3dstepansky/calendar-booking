@@ -43,6 +43,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     full_name: Mapped[Optional[str]] = mapped_column(String(255))
+    timezone: Mapped[Optional[str]] = mapped_column(String(50), default="UTC")
     google_id: Mapped[str] = mapped_column(String(255), unique=True)
     
     oauth_token: Mapped["OAuthToken"] = relationship(back_populates="user", cascade="all, delete-orphan")

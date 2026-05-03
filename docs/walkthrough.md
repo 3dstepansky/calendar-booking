@@ -64,7 +64,10 @@ docker-compose exec app alembic upgrade head
 ### Фронтенд (GitHub Pages)
 Проект настроен на автоматическое развертывание. 
 - **URL:** [https://3dstepansky.github.io/calendar-booking/](https://3dstepansky.github.io/calendar-booking/)
-- **Процесс:** Любые изменения в ветке `main` автоматически собираются и публикуются через GitHub Actions.
+- **Backend (VPS):** `http://45.134.217.246:8000`
+
+> [!WARNING]
+> **Mixed Content:** Поскольку фронтенд работает на HTTPS, а бэкенд на HTTP, браузеры могут блокировать запросы. Для полноценного тестирования рекомендуется запускать фронтенд локально или настроить SSL на сервере.
 
 ### Уведомления (Telegram)
 Система отправляет уведомления о новых записях. Для активации нужно:
