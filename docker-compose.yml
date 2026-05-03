@@ -1,0 +1,31 @@
+name: calendar-booking
+
+services:
+  # Наша база данных
+  db:
+    image: postgres:15-alpine
+    container_name: calendar_db_cont
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=calendar_db
+    ports:
+      - "5432:5432"
+
+  # Наше FastAPI приложение
+  app:
+    build: .
+    container_name: calendar_app_cont
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/calendar_db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
