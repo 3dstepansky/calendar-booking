@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, ArrowRight, Check, Globe } from 'lucide-react';
 import { bookingService } from './services/api';
@@ -217,7 +217,7 @@ const OrganizerDashboard = () => {
 function App() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-6">
-      <Router basename="/calendar-booking">
+      <Router>
         <div className="booking-container">
           <Routes>
             <Route path="/" element={<BookingScreen />} />
