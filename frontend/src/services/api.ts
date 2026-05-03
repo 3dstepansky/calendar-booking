@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'http://140.238.153.123:8000/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -31,7 +31,7 @@ export const bookingService = {
 
   // Авторизация (инициация)
   login: () => {
-    window.location.href = '/api/v1/auth/login';
+    window.location.href = 'http://140.238.153.123:8000/api/v1/auth/login';
   }
 };
 
