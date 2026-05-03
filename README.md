@@ -1,37 +1,46 @@
-# Calendar Booking API (FastAPI + Google Calendar)
+# Calendar Booking System 📅
 
-Бэкенд-сервис для автоматизации записи на встречи с интеграцией в Google Calendar. Идеально подходит для Telegram Mini Apps.
+Современная система бронирования встреч, интегрированная с Google Calendar и Telegram Mini App.
+
+[![Deploy Frontend to GitHub Pages](https://github.com/3dstepansky/calendar-booking/actions/workflows/deploy.yml/badge.svg)](https://github.com/3dstepansky/calendar-booking/actions/workflows/deploy.yml)
+
+## 🚀 Live Demo
+**Фронтенд доступен здесь:** [https://3dstepansky.github.io/calendar-booking/](https://3dstepansky.github.io/calendar-booking/)
+
+---
 
 ## ✨ Основные возможности
-- **Google OAuth 2.0:** Безопасная авторизация организаторов.
-- **Интеллектуальный SlotEngine:** Расчет свободных окон с учетом реальной занятости в Google Календаре.
-- **Защита от Double Booking:** Использование пессимистических блокировок в БД для предотвращения одновременной записи.
-- **Полная асинхронность:** FastAPI + SQLAlchemy 2.0 (asyncpg).
-- **Docker-ready:** Готовые конфиги для развертывания.
+- **Интеграция с Google Calendar:** Автоматическая проверка занятости через `freebusy` и создание событий.
+- **Умный Slot Engine:** Динамический расчет доступных окон с учетом рабочих часов и часовых поясов.
+- **Telegram Mini App:** Интерфейс, оптимизированный для мобильных устройств внутри Telegram.
+- **Уведомления:** Мгновенные подтверждения через Telegram Bot API.
+- **Безопасность:** Защита от двойного бронирования (Race Condition) и JWT-авторизация.
 
-## 🚀 Быстрый старт
+## 🛠 Технологический стек
+- **Backend:** FastAPI (Python 3.11), SQLAlchemy 2.0, PostgreSQL.
+- **Frontend:** React + Vite, TypeScript, Framer Motion.
+- **DevOps:** Docker, GitHub Actions, Alembic.
 
-1. Скопируйте `.env.example` в `.env` и заполните ключи Google API.
-2. Запустите контейнеры:
+## 📦 Быстрый старт
+
+1. **Клонируйте репозиторий:**
+   ```bash
+   git clone https://github.com/3dstepansky/calendar-booking.git
+   cd calendar-booking
+   ```
+
+2. **Настройте окружение:**
+   Создайте файл `.env` на основе примера и заполните ключи Google и Telegram.
+
+3. **Запустите через Docker:**
    ```bash
    docker-compose up -d --build
    ```
-3. Примените миграции:
+
+4. **Примените миграции:**
    ```bash
    docker-compose exec app alembic upgrade head
    ```
-4. Откройте Swagger UI: `http://localhost:8000/docs`
 
-## 📂 Документация
-Подробные руководства находятся в папке `docs/`:
-- [Архитектура и БД](docs/database_design.md)
-- [План реализации](docs/implementation_plan.md)
-- [Руководство пользователя (Walkthrough)](docs/walkthrough.md)
-
-## 🛠 Технологии
-- **Python 3.11**
-- **FastAPI**
-- **PostgreSQL 15**
-- **SQLAlchemy 2.0**
-- **Alembic**
-- **Docker & Docker Compose**
+---
+*Developed with Antigravity Engine.*

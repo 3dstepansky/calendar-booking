@@ -59,7 +59,29 @@ docker-compose exec app alembic upgrade head
 
 ---
 
-## 5. Стек технологий
+## 6. Деплой и CI/CD
+
+### Фронтенд (GitHub Pages)
+Проект настроен на автоматическое развертывание. 
+- **URL:** [https://3dstepansky.github.io/calendar-booking/](https://3dstepansky.github.io/calendar-booking/)
+- **Процесс:** Любые изменения в ветке `main` автоматически собираются и публикуются через GitHub Actions.
+
+### Уведомления (Telegram)
+Система отправляет уведомления о новых записях. Для активации нужно:
+1. Создать бота в `@BotFather`.
+2. Прописать `TELEGRAM_BOT_TOKEN` и `ADMIN_CHAT_ID` в `.env`.
+
+---
+
+## 7. Чек-лист перед запуском
+1. [x] Google Cloud Console: Redirect URI настроен на ваш домен/localhost.
+2. [x] Docker: Контейнеры `app` и `db` запущены и синхронизированы.
+3. [x] Миграции: `alembic upgrade head` выполнена.
+4. [x] GitHub: Секреты удалены из истории (сделано).
+
+---
+
+## 8. Стек технологий
 - **FastAPI:** Асинхронный фреймворк для API.
 - **SQLAlchemy 2.0 + asyncpg:** Работа с базой данных PostgreSQL.
 - **Pydantic v2:** Валидация данных и схемы.
