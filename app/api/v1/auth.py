@@ -108,5 +108,5 @@ async def callback(request: Request, db: AsyncSession = Depends(get_db)):
     }
     jwt_token = jwt.encode(token_data, settings.JWT_SECRET, algorithm=settings.ALGORITHM)
 
-    redirect_url = f"{settings.FRONTEND_URL}/#token={jwt_token}"
+    redirect_url = f"{settings.FRONTEND_URL.rstrip('/')}/#/auth/callback?token={jwt_token}"
     return RedirectResponse(redirect_url)

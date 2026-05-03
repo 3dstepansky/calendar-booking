@@ -10,12 +10,12 @@ const AuthCallback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Google присылает токен в фрагменте #token=...
-    const params = new URLSearchParams(location.hash.replace('#', '?'));
+    // React Router кладет параметры после /#/auth/callback? в location.search
+    const params = new URLSearchParams(location.search);
     const token = params.get('token');
     if (token) {
       localStorage.setItem('token', token);
-      navigate('/');
+      navigate('/dashboard'); // Организатора отправляем сразу в настройки
     }
   }, [location, navigate]);
 
