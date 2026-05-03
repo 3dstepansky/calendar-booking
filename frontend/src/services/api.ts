@@ -43,6 +43,16 @@ export const bookingService = {
   updateWorkingHours: async (days: any[]) => {
     const response = await api.post('/organizer/working-hours', { days });
     return response.data;
+  },
+
+  getMyBookings: async () => {
+    const response = await api.get('/organizer/bookings');
+    return response.data;
+  },
+
+  deleteBooking: async (id: number) => {
+    const response = await api.delete(`/organizer/bookings/${id}`);
+    return response.data;
   }
 };
 

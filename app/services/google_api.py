@@ -96,3 +96,20 @@ class GoogleCalendarService:
             raise Exception(f"Не удалось создать событие в Google: {response.text}")
 
         return response.json()
+
+    async def delete_event(self, user_id: int, event_id: str):
+        """
+        Удаляет событие из календаря Google.
+        """
+        token = await self.get_valid_token(user_id)
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.delete(
+                f"https://www.googleapis.com/calendar/v3/calendars/primary/events/{event_id}",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+
+        if response.status_code not in (204, 200, 410): # 410 значит уже удалено
+            raise Exception(f"Не удалось удалить событие из Google: {response.text}")
+
+        return True

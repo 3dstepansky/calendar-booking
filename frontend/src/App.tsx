@@ -153,66 +153,133 @@ const OrganizerLogin = () => {
   );
 };
 
-// Экран панели управления (Настройки)
+// Экран панели управления (Настройки + Список встреч)
 const OrganizerDashboard = () => {
+  const [activeTab, setActiveTab] = useState<'bookings' | 'settings'>('bookings');
   const [timezone, setTimezone] = useState("Europe/Moscow");
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Для упрощения MVP берем жесткую настройку ПН-ПТ 09:00-18:00
-  // В полноценной версии здесь должен быть список из 7 дней с input type="time"
-  const defaultSchedule = [1, 2, 3, 4, 5].map(day => ({
-    day_of_week: day,
-    start_time: "09:00:00",
-    end_time: "18:00:00"
-  }));
+  useEffect(() => {
+    loadBookings();
+  }, []);
 
-  const handleSave = async () => {
+  const loadBookings = async () => {
+    setLoading(true);
+    try {
+      const data = await bookingService.getMyBookings();
+      setBookings(data);
+    } catch (err) {
+      console.error("Failed to load bookings", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Вы уверены, что хотите отменить эту встречу? Она будет удалена из Google Календаря.")) return;
+    try {
+      await bookingService.deleteBooking(id);
+      setBookings(bookings.filter(b => b.id !== id));
+      alert("Встреча отменена.");
+    } catch (err) {
+      alert("Ошибка при отмене встречи.");
+    }
+  };
+
+  const handleSaveSettings = async () => {
     setSaving(true);
     try {
+      const defaultSchedule = [1, 2, 3, 4, 5].map(day => ({
+        day_of_week: day,
+        start_time: "09:00:00",
+        end_time: "18:00:00"
+      }));
       await bookingService.updateProfile(timezone);
       await bookingService.updateWorkingHours(defaultSchedule);
       alert("Настройки успешно сохранены!");
     } catch (err) {
-      alert("Ошибка сохранения. Убедитесь, что вы авторизованы.");
+      alert("Ошибка сохранения.");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="text-left w-full max-w-md mx-auto">
-      <h1 style={{ marginBottom: "32px", textAlign: "center" }}>Настройки</h1>
-      
-      <div className="mb-6">
-        <label>Ваш часовой пояс</label>
-        <select 
-          value={timezone} 
-          onChange={(e) => setTimezone(e.target.value)}
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="text-left w-full max-w-xl mx-auto">
+      <div className="flex gap-4 mb-8 border-b border-white/5 pb-2">
+        <button 
+          onClick={() => setActiveTab('bookings')}
+          className={`pb-2 px-1 text-sm font-medium transition-colors ${activeTab === 'bookings' ? 'text-white border-b-2 border-sky-400' : 'text-slate-500 hover:text-slate-300'}`}
         >
-          <option value="Europe/Moscow">Москва (UTC+3)</option>
-          <option value="Europe/London">Лондон (UTC+0)</option>
-          <option value="Asia/Dubai">Дубай (UTC+4)</option>
-        </select>
+          Мои встречи
+        </button>
+        <button 
+          onClick={() => setActiveTab('settings')}
+          className={`pb-2 px-1 text-sm font-medium transition-colors ${activeTab === 'settings' ? 'text-white border-b-2 border-sky-400' : 'text-slate-500 hover:text-slate-300'}`}
+        >
+          Настройки
+        </button>
       </div>
 
-      <div className="mb-8">
-        <label>Рабочие часы (MVP)</label>
-        <div className="schedule-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Пн — Пт</span>
-            <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>09:00 - 18:00</span>
-          </div>
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>В следующей версии появится возможность гибкой настройки каждого дня.</p>
-        </div>
-      </div>
-
-      <button 
-        onClick={handleSave} 
-        disabled={saving}
-        className="btn-primary"
-      >
-        {saving ? "Сохранение..." : "Сохранить изменения"}
-      </button>
+      <AnimatePresence mode="wait">
+        {activeTab === 'bookings' ? (
+          <motion.div key="bookings" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
+            {loading ? (
+              <p className="text-slate-500 text-center py-12">Загрузка встреч...</p>
+            ) : bookings.length === 0 ? (
+              <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5">
+                <p className="text-slate-400">У вас пока нет забронированных встреч.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {bookings.map((b) => (
+                  <div key={b.id} className="schedule-card flex justify-between items-center group">
+                    <div>
+                      <h4 className="font-medium text-white mb-1">{b.guest_name}</h4>
+                      <div className="flex items-center gap-3 text-xs text-slate-400">
+                        <span className="flex items-center gap-1"><Clock size={12} /> {new Date(b.start_time).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>{b.guest_email}</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => handleDelete(b.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-xs bg-red-500/10 text-red-400 px-3 py-2 rounded-lg hover:bg-red-500 hover:text-white"
+                    >
+                      Отменить
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div key="settings" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
+            <div className="mb-6">
+              <label>Ваш часовой пояс</label>
+              <select value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+                <option value="Europe/Moscow">Москва (UTC+3)</option>
+                <option value="Europe/London">Лондон (UTC+0)</option>
+                <option value="Asia/Dubai">Дубай (UTC+4)</option>
+              </select>
+            </div>
+            <div className="mb-8">
+              <label>Рабочие часы (MVP)</label>
+              <div className="schedule-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Пн — Пт</span>
+                  <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>09:00 - 18:00</span>
+                </div>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>В следующей версии появится возможность гибкой настройки каждого дня.</p>
+              </div>
+            </div>
+            <button onClick={handleSaveSettings} disabled={saving} className="btn-primary">
+              {saving ? "Сохранение..." : "Сохранить изменения"}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
