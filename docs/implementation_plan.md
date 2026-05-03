@@ -31,7 +31,8 @@
 - [x] **Интеграция API:** Потребление данных через Axios.
 - [x] **Routing:** Настройка React Router с поддержкой `basename`.
 - [x] **CI/CD:** GitHub Actions для автоматического деплоя при каждом пуше.
-- [x] **Live URL:** [https://3dstepansky.github.io/calendar-booking/](https://3dstepansky.github.io/calendar-booking/)
+- [x] **Live URL (Front):** [https://3dstepansky.github.io/calendar-booking/](https://3dstepansky.github.io/calendar-booking/)
+- [x] **Backend Artifacts:** Автоматическая сборка Docker-образов в GitHub Container Registry (GHCR).
 
 ---
 
