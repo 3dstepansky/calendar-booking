@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://45.134.217.246:8000/api/v1',
+  baseURL: 'https://stepansky.mywire.org:8443/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -31,7 +31,7 @@ export const bookingService = {
 
   // Авторизация (инициация)
   login: () => {
-    window.location.href = 'http://45.134.217.246:8000/api/v1/auth/login';
+    window.location.href = 'https://stepansky.mywire.org:8443/api/v1/auth/login';
   },
 
   // Настройки организатора
